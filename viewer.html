@@ -19,6 +19,32 @@
       box-sizing: border-box;
     }
 
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .viewer-layout {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .viewer-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .pdf-canvas-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px 0;
+    }
+
     /* ── Toolbar groups ── */
     .toolbar-group {
       display: flex;
@@ -262,6 +288,11 @@
       #btn-thumbs {
         display: flex;
       }
+    }
+
+    .page-container {
+      margin: 0 auto;
+      min-width: max-content;
     }
   </style>
 </head>

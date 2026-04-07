@@ -224,8 +224,17 @@ async function renderPage(pageNum) {
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+
+    // Fix blurry rendering
+    const outputScale = window.devicePixelRatio || 1;
+
+    canvas.width = viewport.width * outputScale;
+    canvas.height = viewport.height * outputScale;
+
+    canvas.style.width = `${viewport.width}px`;
+    canvas.style.height = `${viewport.height}px`;
+
+    ctx.setTransform(outputScale, 0, 0, outputScale, 0, 0);
 
     const hlLayer = document.createElement("div");
     hlLayer.className = "highlight-layer";
