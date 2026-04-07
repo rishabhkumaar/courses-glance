@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Courses Glance — Login</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body class="login-page">
+
+    <div class="login-card">
+
+        <!-- Logo -->
+        <div class="login-logo">
+            <div class="logo-icon">
+                <!-- Book / open pages icon -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v8L12 20.5l-8-4V8.5l8-4.32z"
+                        fill="rgba(255,255,255,0.9)" />
+                    <path d="M12 2v18.5M2 7l10 5 10-5" stroke="rgba(255,255,255,0.6)" stroke-width="0.8" fill="none" />
+                </svg>
+            </div>
+            <h1>Courses Glance</h1>
+        </div>
+        <p class="login-subtitle">Sign in to access your study materials</p>
+
+        <!-- Error / info banner -->
+        <div id="error-msg" class="error-message hidden">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z" />
+            </svg>
+            <span id="error-text"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" placeholder="you@example.com" autocomplete="username" />
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+
+        <!-- Submit -->
+        <button id="login-btn" class="btn btn-primary btn-full">
+            <span id="login-label">Sign In</span>
+            <span id="login-spinner" class="spinner hidden"></span>
+        </button>
+
+        <p class="login-footer">Personal access only &mdash; Courses Glance &copy; 2026</p>
+    </div>
+
+    <!-- Theme toggle (bottom-right corner) -->
+    <button id="theme-btn" class="theme-toggle" style="position:fixed;bottom:20px;right:20px;" title="Toggle dark mode">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+    </button>
+
+    <!-- Firebase + Auth Script -->
+    <script type="module">
+        import { loginUser, onAuthChange } from './js/firebase.js';
+
+        /* ── Theme ────────────────────────────────────────── */
+        const stored = localStorage.getItem("cg_theme") || "light";
+        document.documentElement.setAttribute("data-theme", stored);
+        updateThemeIcon(stored);
+
+        document.getElementById("theme-btn").addEventListener("click", () => {
+            const cur = document.documentElement.getAttribute("data-theme") || "light";
+            const next = cur === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("cg_theme", next);
+            updateThemeIcon(next);
+        });
+
+        function updateThemeIcon(t) {
+            document.getElementById("theme-icon").innerHTML = t === "dark"
+                ? `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+           <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+           <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+           <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
+                : `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+        }
+
+        /* ── Redirect if already logged in ───────────────── */
+        onAuthChange(user => {
+            if (user) window.location.replace("dashboard.html");
+        });
+
+        /* ── Login handler ────────────────────────────────── */
+        const loginBtn = document.getElementById("login-btn");
+        const loginLabel = document.getElementById("login-label");
+        const loginSpin = document.getElementById("login-spinner");
+        const errorDiv = document.getElementById("error-msg");
+        const errorText = document.getElementById("error-text");
+        const emailInput = document.getElementById("email");
+        const passInput = document.getElementById("password");
+
+        function showError(msg) {
+            errorText.textContent = msg;
+            errorDiv.classList.remove("hidden");
+        }
+        function clearError() {
+            errorDiv.classList.add("hidden");
+        }
+
+        async function doLogin() {
+            const email = emailInput.value.trim();
+            const password = passInput.value;
+
+            clearError();
+
+            if (!email || !password) {
+                showError("Please enter your email and password.");
+                return;
+            }
+
+            loginLabel.textContent = "Signing in…";
+            loginSpin.classList.remove("hidden");
+            loginBtn.disabled = true;
+
+            try {
+                await loginUser(email, password);
+                window.location.replace("dashboard.html");
+            } catch (err) {
+                loginLabel.textContent = "Sign In";
+                loginSpin.classList.add("hidden");
+                loginBtn.disabled = false;
+                showError(mapError(err.code));
+            }
+        }
+
+        loginBtn.addEventListener("click", doLogin);
+
+        // Enter key triggers login from either field
+        [emailInput, passInput].forEach(el => {
+            el.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+        });
+
+        function mapError(code) {
+            const map = {
+                "auth/user-not-found": "No account found with this email.",
+                "auth/wrong-password": "Incorrect password. Please try again.",
+                "auth/invalid-email": "Please enter a valid email address.",
+                "auth/invalid-credential": "Invalid email or password.",
+                "auth/too-many-requests": "Too many failed attempts. Try again later.",
+                "auth/network-request-failed": "Network error. Check your connection.",
+            };
+            return map[code] || "Login failed. Please try again.";
+        }
+    </script>
+</body>
+
+</html>
