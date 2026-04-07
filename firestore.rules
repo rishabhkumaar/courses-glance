@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// ── Firestore Security Rules for Courses Glance ──────────────
+// These rules ensure only the authenticated owner can read/write
+// their own highlights and metadata.
+//
+// Deploy with: firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Highlights collection ─────────────────────────────────
+    // Allow read/write only if the document's userId matches
+    // the requesting user's uid.
+    match /highlights/{highlightId} {
+      allow read, write: if
+        request.auth != null &&
+        (
+          resource == null ||                        // new document (create)
+          resource.data.userId == request.auth.uid   // existing document
+        ) &&
+        (
+          !request.resource.data.keys().hasAny(["userId"]) ||
+          request.resource.data.userId == request.auth.uid
+        );
+    }
+
+    // ── User metadata collection ──────────────────────────────
+    // Users may only access their own metadata subtree.
+    match /userMeta/{userId}/{document=**} {
+      allow read, write: if
+        request.auth != null &&
+        request.auth.uid == userId;
+    }
+
+    // ── Default: deny everything else ────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

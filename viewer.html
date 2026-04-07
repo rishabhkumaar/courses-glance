@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viewer — Courses Glance</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- PDF.js (loaded before viewer.js module) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    /* ── Viewer-specific additions ── */
+
+    /* Search panel (slide-in from top) */
+    .search-panel {
+      position: absolute;
+      top: var(--toolbar-height);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      padding: 12px 16px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 200;
+      min-width: 340px;
+    }
+    .search-panel input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--bg-primary);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+    .search-panel input:focus { border-color: var(--accent); }
+    .search-status {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      min-width: 60px;
+    }
+
+    /* Toolbar groups */
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* Bookmark button styling */
+    #btn-bookmark svg { transition: fill var(--transition); }
+    #btn-bookmark.bookmarked svg {
+      fill: var(--accent);
+      stroke: var(--accent);
+    }
+
+    /* Responsive toolbar: collapse labels */
+    @media (max-width: 800px) {
+      .toolbar-label { display: none; }
+    }
+
+    /* Keyboard shortcut hint */
+    .kbd {
+      display: inline-block;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body class="viewer-layout">
+
+  <!-- ══════════════════════════════════════════
+       TOP TOOLBAR
+       ══════════════════════════════════════════ -->
+  <header class="viewer-toolbar">
+
+    <!-- Back + PDF name -->
+    <div class="toolbar-brand">
+      <button id="back-btn" class="btn-icon" title="Back to dashboard (Alt+←)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+      <span class="pdf-name" id="pdf-name">Loading…</span>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Zoom controls -->
+    <div class="toolbar-group zoom-controls">
+      <button id="btn-zoom-out" class="btn-icon" title="Zoom out (Ctrl -)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+      <span class="zoom-level" id="zoom-level">125%</span>
+      <button id="btn-zoom-in" class="btn-icon" title="Zoom in (Ctrl +)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Highlight colours -->
+    <div class="toolbar-group highlight-tools">
+      <button
+        id="btn-highlight"
+        class="btn-icon"
+        title="Highlight mode (H)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </button>
+
+      <!-- Colour swatches -->
+      <button class="color-btn color-yellow"  data-color="yellow"  title="Yellow"></button>
+      <button class="color-btn color-green"   data-color="green"   title="Green"></button>
+      <button class="color-btn color-blue"    data-color="blue"    title="Blue"></button>
+      <button class="color-btn color-pink"    data-color="pink"    title="Pink"></button>
+      <button class="color-btn color-orange"  data-color="orange"  title="Orange"></button>
+
+      <button id="btn-erase" class="btn-icon erase-btn" title="Erase mode (E)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 20H7L3 16l11-11 6 6-4.5 4.5"/><path d="M6.293 18.707L3 22l3.707-3.707"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Page navigation -->
+    <div class="toolbar-group page-nav">
+      <button id="btn-prev" class="btn-icon" title="Previous page (← / Page Up)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <input type="number" id="page-input" value="1" min="1" title="Go to page" />
+      <span class="page-total" id="page-total">/ —</span>
+      <button id="btn-next" class="btn-icon" title="Next page (→ / Page Down)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Right actions -->
+    <div class="toolbar-right">
+
+      <!-- Bookmark -->
+      <button id="btn-bookmark" class="btn-icon" title="Bookmark page (B)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+      </button>
+
+      <!-- Search in PDF -->
+      <button id="btn-search" class="btn-icon" title="Search in PDF (Ctrl+F)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+
+      <!-- Theme -->
+      <button id="btn-theme" class="btn-icon theme-toggle" title="Toggle dark mode">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+
+      <!-- Logout -->
+      <button id="btn-logout" class="btn-icon" title="Logout">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Search panel (hidden by default) -->
+  <div id="search-panel" class="search-panel hidden" style="position:fixed;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="search-input" placeholder="Search in PDF…" />
+    <button id="btn-search-prev" class="btn-icon" title="Previous match">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <button id="btn-search-next" class="btn-icon" title="Next match">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+    <span class="search-status" id="search-status"></span>
+    <button id="btn-search-close" class="btn-icon" title="Close (Esc)"
+      onclick="document.getElementById('search-panel').classList.add('hidden')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       BODY: Thumbnail sidebar + PDF area
+       ══════════════════════════════════════════ -->
+  <div class="viewer-body">
+
+    <!-- Thumbnail sidebar -->
+    <div class="thumb-sidebar" id="thumb-sidebar">
+      <!-- Thumbnails injected by viewer.js -->
+    </div>
+
+    <!-- PDF canvas area (scrollable) -->
+    <div class="pdf-canvas-area" id="pdf-canvas-area">
+      <!-- Page containers injected by viewer.js -->
+      <div style="text-align:center; padding:80px 20px; color:var(--text-muted);">
+        <div class="spinner" style="border-color:var(--border-color); border-top-color:var(--accent); width:32px;height:32px;margin:0 auto 16px;"></div>
+        <p style="font-size:0.9rem;">Loading PDF…</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STATUS BAR
+       ══════════════════════════════════════════ -->
+  <footer class="viewer-statusbar">
+    <div class="status-item">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Initialising…</span>
+    </div>
+    <div class="status-item" style="margin-left:auto">
+      <span style="font-size:0.7rem; color:var(--text-muted)">
+        <span class="kbd">H</span> highlight &nbsp;
+        <span class="kbd">E</span> erase &nbsp;
+        <span class="kbd">B</span> bookmark &nbsp;
+        <span class="kbd">Ctrl+F</span> search
+      </span>
+    </div>
+  </footer>
+
+  <!-- Mode banner -->
+  <div id="mode-banner" class="mode-banner hidden"></div>
+
+  <!-- Toasts -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ── Viewer module ── -->
+  <script type="module" src="js/viewer.js"></script>
+
+</body>
+</html>

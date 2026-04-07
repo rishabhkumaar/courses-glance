@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Courses Glance — Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* Extra dashboard-only styles */
+        .section-header {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            flex: 1;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .stat-num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .stat-card .stat-num.accent {
+            color: var(--accent);
+        }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: var(--radius-sm);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% center;
+            }
+
+            100% {
+                background-position: -200% center;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-layout">
+
+    <!-- ══════════════════════════════════════════
+       SIDEBAR
+       ══════════════════════════════════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <!-- Brand -->
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" fill="rgba(255,255,255,0.9)" />
+                    </svg>
+                </div>
+                <span class="brand-name">Courses Glance</span>
+            </div>
+
+            <!-- Search -->
+            <div class="sidebar-search">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" id="sidebar-search" placeholder="Search courses…" />
+            </div>
+        </div>
+
+        <div class="sidebar-count" id="sidebar-count">9 courses</div>
+
+        <!-- Course list -->
+        <div class="sidebar-list" id="sidebar-list">
+            <!-- Filled by JS -->
+        </div>
+
+        <!-- User info + actions -->
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">?</div>
+                <span class="user-email" id="user-email">Loading…</span>
+            </div>
+            <button id="logout-btn" class="btn-icon" title="Logout">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+       MAIN
+       ══════════════════════════════════════════ -->
+    <main class="dashboard-main">
+
+        <!-- Top bar -->
+        <div class="dashboard-topbar">
+            <div class="topbar-title">
+                <h2>My Courses</h2>
+                <p id="greeting">Good morning!</p>
+            </div>
+            <div class="topbar-actions">
+                <button id="theme-btn" class="theme-toggle" title="Toggle dark mode">
+                    <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="dashboard-content">
+
+            <!-- Stats row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-num">9</div>
+                    <div class="stat-label">Total Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num accent" id="stat-highlights">—</div>
+                    <div class="stat-label">Highlights Saved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num accent" id="stat-annotated">—</div>
+                    <div class="stat-label">Annotated PDFs</div>
+                </div>
+            </div>
+
+            <div class="section-header">All Courses</div>
+
+            <!-- Grid -->
+            <div class="courses-grid" id="courses-grid">
+                <!-- Filled by JS -->
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ══════════════════════════════════════════
+       TOAST
+       ══════════════════════════════════════════ -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ══════════════════════════════════════════
+       SCRIPT
+       ══════════════════════════════════════════ -->
+    <script type="module">
+        import { requireAuth, logoutUser, getHighlightCounts } from './js/firebase.js';
+
+        // ── Course catalogue ─────────────────────────────────────────
+        // Edit this list to match your actual PDF filenames.
+        // The `file` field must match the filename in the /pdfs/ folder.
+        const COURSES = [
+            { id: "CHE110", name: "Enviormental Studies", file: "CHE110.pdf", color: "#ef4444" },
+            { id: "CSE101", name: "C Programming", file: "CSE101.pdf", color: "#6c63ff" },
+            { id: "CSE121", name: "Orientation to Computing", file: "CSE121.pdf", color: "#8b5cf6" },
+            { id: "CSE320", name: "Software Engineering", file: "CSE320.pdf", color: "#3b82f6" },
+            { id: "ECE249", name: "Electronics", file: "ECE249.pdf", color: "#06b6d4" },
+            { id: "ECE279", name: "ECE Lab", file: "ECE279.pdf", color: "#10b981" },
+            { id: "INT306", name: "Database Management Systems", file: "INT306.pdf", color: "#22c55e" },
+            { id: "MTH166", name: "Engineering Mathematics", file: "MTH166.pdf", color: "#f59e0b" },
+            { id: "PEL125", name: "Professional Ethics", file: "PEL125.pdf", color: "#f97316" }
+        ];
+
+        // ── State ──────────────────────────────────────────────────────
+        let allCourses = [...COURSES];
+        let filteredList = [...COURSES];
+        let hlCounts = {};
+        let currentUser = null;
+
+        // ── Boot ───────────────────────────────────────────────────────
+        applyStoredTheme();
+        currentUser = await requireAuth();
+
+        // Update user UI
+        document.getElementById("user-email").textContent = currentUser.email;
+        document.getElementById("user-avatar").textContent =
+            currentUser.email.charAt(0).toUpperCase();
+
+        setGreeting();
+
+        // Load highlight counts from Firestore
+        try {
+            hlCounts = await getHighlightCounts(currentUser.uid);
+            const totalHL = Object.values(hlCounts).reduce((a, b) => a + b, 0);
+            const annotated = Object.keys(hlCounts).length;
+            document.getElementById("stat-highlights").textContent = totalHL;
+            document.getElementById("stat-annotated").textContent = annotated;
+        } catch (_) { /* silent */ }
+
+        // Render
+        renderGrid(COURSES);
+        renderSidebarList(COURSES);
+
+        // ── Events ─────────────────────────────────────────────────────
+        document.getElementById("sidebar-search").addEventListener("input", e => {
+            const q = e.target.value.toLowerCase().trim();
+            filteredList = q
+                ? COURSES.filter(c =>
+                    c.id.toLowerCase().includes(q) ||
+                    c.name.toLowerCase().includes(q))
+                : [...COURSES];
+            renderGrid(filteredList);
+            renderSidebarList(filteredList);
+            document.getElementById("sidebar-count").textContent =
+                `${filteredList.length} course${filteredList.length !== 1 ? "s" : ""}`;
+        });
+
+        document.getElementById("logout-btn").addEventListener("click", async () => {
+            await logoutUser();
+            window.location.replace("login.html");
+        });
+
+        document.getElementById("theme-btn").addEventListener("click", toggleTheme);
+
+        // ── Render functions ────────────────────────────────────────────
+        function renderGrid(list) {
+            const grid = document.getElementById("courses-grid");
+            if (list.length === 0) {
+                grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <h3>No courses found</h3>
+            <p>Try a different search term</p>
+          </div>`;
+                return;
+            }
+
+            grid.innerHTML = list.map(course => {
+                const count = hlCounts[course.id] || 0;
+                return `
+          <div class="course-card" onclick="openCourse('${course.id}', '${course.file}')">
+            <div class="card-header">
+              <div class="card-icon" style="background:${course.color}">
+                ${course.id.slice(0, 3)}
+              </div>
+              <span class="card-badge ${count > 0 ? 'has-highlights' : ''}">
+                ${count > 0 ? `${count} highlights` : 'PDF'}
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="card-title">${course.id}</div>
+              <div class="card-subtitle">${course.name}</div>
+            </div>
+            <div class="card-footer">
+              <span class="card-action">
+                Open PDF
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </span>
+            </div>
+          </div>`;
+            }).join("");
+        }
+
+        function renderSidebarList(list) {
+            const el = document.getElementById("sidebar-list");
+            el.innerHTML = list.map(course => `
+        <div class="sidebar-item" onclick="openCourse('${course.id}', '${course.file}')">
+          <div class="course-icon" style="background:${course.color}">
+            ${course.id.slice(0, 3)}
+          </div>
+          <div class="course-info">
+            <div class="course-id">${course.id}</div>
+            <div class="course-desc">${course.name}</div>
+          </div>
+          <svg class="course-arrow" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+      `).join("");
+        }
+
+        // ── Navigation ─────────────────────────────────────────────────
+        window.openCourse = function (courseId, fileName) {
+            const path = encodeURIComponent(`pdfs/${fileName}`);
+            window.location.href = `viewer.html?name=${encodeURIComponent(courseId)}&path=pdfs/${fileName}`;
+        };
+
+        // ── Greeting ────────────────────────────────────────────────────
+        function setGreeting() {
+            const h = new Date().getHours();
+            const greet = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+            document.getElementById("greeting").textContent =
+                `${greet}, ${currentUser.email.split("@")[0]}!`;
+        }
+
+        // ── Theme ────────────────────────────────────────────────────────
+        function applyStoredTheme() {
+            const t = localStorage.getItem("cg_theme") || "light";
+            document.documentElement.setAttribute("data-theme", t);
+            updateThemeIcon(t);
+        }
+
+        function toggleTheme() {
+            const cur = document.documentElement.getAttribute("data-theme") || "light";
+            const next = cur === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("cg_theme", next);
+            updateThemeIcon(next);
+        }
+
+        function updateThemeIcon(t) {
+            document.getElementById("theme-icon").innerHTML = t === "dark"
+                ? `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+           <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+           <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+           <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
+                : `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+        }
+    </script>
+</body>
+
+</html>
