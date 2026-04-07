@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Viewer — Courses Glance</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -289,6 +289,152 @@
       #btn-thumbs {
         display: flex;
       }
+    }
+
+    .pdf-canvas-area {
+      touch-action: pan-x pan-y;
+    }
+
+    .page-container {
+      display: block;
+    }
+
+    .page-container {
+      margin: 0 auto;
+      display: block;
+      min-width: max-content;
+    }
+
+    /* ── Reset ── */
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ── Layout ── */
+
+    .viewer-layout {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .viewer-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ── PDF AREA ── */
+
+    .pdf-canvas-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px 0;
+      touch-action: pan-x pan-y;
+    }
+
+    /* ── PAGE ── */
+
+    .page-container {
+      position: relative;
+      margin: 0 auto 16px auto;
+      min-width: max-content;
+      display: block;
+    }
+
+    /* ── Canvas ── */
+
+    .page-container canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* ── TEXT LAYER ── */
+
+    .textLayer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      opacity: 1;
+      line-height: 1;
+      z-index: 2;
+      pointer-events: auto;
+    }
+
+    .textLayer span {
+      position: absolute;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+    }
+
+    .textLayer::selection {
+      background: rgba(0, 123, 255, .3);
+    }
+
+    .textLayer br {
+      display: none;
+    }
+
+    /* ── HIGHLIGHT ── */
+
+    .highlight-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* fix height */
+
+    .page-container canvas,
+    .textLayer,
+    .highlight-layer {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* mobile */
+
+    @media(max-width:640px) {
+
+      .viewer-toolbar {
+        flex-wrap: wrap;
+        height: auto !important;
+        padding: 4px 6px !important;
+      }
+
+      .thumb-sidebar {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 88px;
+        bottom: 32px;
+        width: 80px;
+        overflow-y: auto;
+      }
+
+      .thumb-sidebar.open {
+        display: flex;
+      }
+
     }
   </style>
 </head>
