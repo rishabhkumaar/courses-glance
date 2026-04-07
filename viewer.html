@@ -35,6 +35,7 @@
       flex: 1;
       display: flex;
       overflow: hidden;
+      min-width: 0;
     }
 
     .pdf-canvas-area {
@@ -45,7 +46,68 @@
       padding: 20px 0;
     }
 
+    /* ─────────────────────────────
+   PAGE CONTAINER
+───────────────────────────── */
+
+    .page-container {
+      position: relative;
+      margin: 0 auto 16px auto;
+      min-width: max-content;
+    }
+
+    /* Canvas positioning */
+
+    .page-container canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* ─────────────────────────────
+   TEXT LAYER (FIX TEXT SELECTION)
+───────────────────────────── */
+
+    .textLayer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      opacity: 1;
+      line-height: 1;
+      z-index: 2;
+    }
+
+    .textLayer span {
+      position: absolute;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+    }
+
+    .textLayer ::selection {
+      background: rgba(0, 123, 255, 0.3);
+    }
+
+    .textLayer br {
+      display: none;
+    }
+
+    /* ─────────────────────────────
+   HIGHLIGHT LAYER
+───────────────────────────── */
+
+    .highlight-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
     /* ── Toolbar groups ── */
+
     .toolbar-group {
       display: flex;
       align-items: center;
@@ -53,6 +115,7 @@
     }
 
     /* ── Zoom level label ── */
+
     .zoom-level {
       font-size: 0.8rem;
       min-width: 38px;
@@ -61,6 +124,7 @@
     }
 
     /* ── Colour swatches ── */
+
     .color-btn {
       width: 20px;
       height: 20px;
@@ -97,6 +161,7 @@
     }
 
     /* ── Bookmark fill when active ── */
+
     #btn-bookmark svg {
       transition: fill 0.2s;
     }
@@ -107,6 +172,7 @@
     }
 
     /* ── Search panel ── */
+
     .search-panel {
       position: fixed;
       top: var(--toolbar-height, 52px);
@@ -125,48 +191,12 @@
       width: min(94vw, 380px);
     }
 
-    .search-panel input {
-      flex: 1;
-      min-width: 0;
-      padding: 7px 10px;
-      background: var(--bg-primary);
-      border: 1.5px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-primary);
-      font-size: 0.85rem;
-    }
+    /* ─────────────────────────────
+   MOBILE TOOLBAR
+───────────────────────────── */
 
-    .search-panel input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    @media (max-width:640px) {
 
-    .search-status {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      min-width: 52px;
-    }
-
-    /* ── KBD hint ── */
-    .kbd {
-      display: inline-block;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      border-radius: 3px;
-      padding: 1px 5px;
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      font-family: monospace;
-    }
-
-    /* ════════════════════════════════════════
-       MOBILE TOOLBAR  (≤ 640 px)
-       Two rows: brand+nav row  /  tools row
-       ════════════════════════════════════════ */
-    @media (max-width: 640px) {
-
-      /* Stack the toolbar into two compact rows */
       .viewer-toolbar {
         flex-wrap: wrap;
         height: auto !important;
@@ -174,7 +204,6 @@
         gap: 0;
       }
 
-      /* Row 1: back + name + right actions */
       .toolbar-brand {
         flex: 1 1 auto;
         min-width: 0;
@@ -184,12 +213,10 @@
         flex: 0 0 auto;
       }
 
-      /* Dividers between rows invisible, used as row-break */
       .toolbar-divider {
         display: none;
       }
 
-      /* Row 2: all tool groups full-width */
       .toolbar-row2 {
         display: flex;
         align-items: center;
@@ -204,45 +231,17 @@
         display: none;
       }
 
-      /* Zoom controls inside row2 */
-      .zoom-controls {
-        gap: 2px;
-      }
-
-      .zoom-level {
-        min-width: 30px;
-        font-size: 0.75rem;
-      }
-
-      /* Highlight colour swatches: smaller on mobile */
       .color-btn {
         width: 16px;
         height: 16px;
       }
 
-      /* Page nav inside row2 */
-      .page-nav #page-input {
-        width: 36px;
-        font-size: 0.8rem;
-      }
-
-      .page-total {
-        font-size: 0.8rem;
-      }
-
-      /* Touch-friendly tap targets */
       .btn-icon {
         min-width: 36px;
         min-height: 36px;
         padding: 6px;
       }
 
-      /* Hide status bar shortcut hints on mobile */
-      .viewer-statusbar .kbd {
-        display: none;
-      }
-
-      /* Thumb sidebar hidden by default on mobile; toggled via JS */
       .thumb-sidebar {
         display: none;
         position: fixed !important;
@@ -262,7 +261,6 @@
         flex-direction: column;
       }
 
-      /* PDF area always full width on mobile */
       .viewer-body {
         flex-direction: row;
       }
@@ -270,29 +268,27 @@
       .pdf-canvas-area {
         flex: 1 1 auto;
       }
+
     }
 
-    /* ── Tablet tweak (641–900px): hide text labels ── */
-    @media (max-width: 900px) {
+    /* Tablet tweak */
+
+    @media (max-width:900px) {
       .toolbar-label {
         display: none;
       }
     }
 
-    /* ── Mobile thumbnail toggle button (only visible on mobile) ── */
+    /* Mobile thumb toggle */
+
     #btn-thumbs {
       display: none;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width:640px) {
       #btn-thumbs {
         display: flex;
       }
-    }
-
-    .page-container {
-      margin: 0 auto;
-      min-width: max-content;
     }
   </style>
 </head>
